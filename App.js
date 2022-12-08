@@ -1,14 +1,45 @@
-import * as React from 'react';
+import React, { useState, useEffect } from "react";
 import { Appbar, List, DataTable, Button } from 'react-native-paper';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, FlatList } from 'react-native';
 
 const MyComponent = () => {
 
   const [expanded, setExpanded] = React.useState(true);
   const handlePress = () => setExpanded(!expanded);
 
+  const [data, setData] = useState(null);
+  const [titleUc, setTitleUc] = useState("N/A");
+
+  const fetchData = async () => {
+    const resp = await fetch("http://academico3.rj.senac.br:8080/api/RegistroAvaliacao/TodosRegistrosPeriodoAtualFilterByUsuarioIdByUCId/3b700ecc-cec9-4be4-8c00-48bced543861/1");
+    const data = await resp.json();
+
+    setTitleUc(data[0].participante?.grupo?.unidadeCurricular?.nome);
+    setData(data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const RenderItem =
+    ({ item }) => {
+      return (
+        <View>
+          <DataTable.Row>
+            <DataTable.Cell style={styles.centerCell}>{item[0].avaliacaoConceito?.descricao}</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>{item[1].avaliacaoConceito?.descricao}</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+          </DataTable.Row>
+        </View>
+      );
+    }
+
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <ScrollView style={styles.scrollView}>
         <View>
 
@@ -29,7 +60,7 @@ const MyComponent = () => {
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
           </View>
-          <Text style={{ fontSize: 16, marginTop: 25}}>CONCEITOS E FEEDBACKS</Text>
+          <Text style={{ fontSize: 16, marginTop: 25 }}>CONCEITOS E FEEDBACKS</Text>
           <Text style={{ fontSize: 16, marginBottom: 25, color: '#3F51B5' }}>Dashboard / Link 1 / Link 2</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
@@ -49,7 +80,8 @@ const MyComponent = () => {
         <View>
           <List.Section>
             <List.Accordion
-              title="UC1"
+              style={{ backgroundColor: '#004587', borderRadius: 40, margin: 5, height: 50 }}
+              title={titleUc}
               onPress={handlePress}>
 
               <DataTable>
@@ -62,32 +94,16 @@ const MyComponent = () => {
                   <DataTable.Title style={styles.centerCell}>Status</DataTable.Title>
                 </DataTable.Header>
 
-                <DataTable.Row>
+                {/* <DataTable.Row>
                   <DataTable.Cell style={styles.centerCell}>B</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}></DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>S</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}></DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>B</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>Ap</DataTable.Cell>
-                </DataTable.Row>
+                </DataTable.Row> */}
+                <RenderItem item={data} />
 
-                <DataTable.Row>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>O</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>S</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}></DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>B</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>Ap</DataTable.Cell>
-                </DataTable.Row>
-
-                <DataTable.Row>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>I</DataTable.Cell>
-                  <DataTable.Cell style={styles.centerCell}>Rp</DataTable.Cell>
-                </DataTable.Row>
 
                 {/* TAREFAS */}
 
@@ -137,26 +153,12 @@ const MyComponent = () => {
               </DataTable>
 
             </List.Accordion>
-
-            <List.Accordion
-              title="UC2"
-              onPress={handlePress}>
-
-            </List.Accordion>
-
-            <List.Accordion
-              title="UC3"
-              onPress={handlePress}>
-            </List.Accordion>
-
-            <List.Accordion
-              title="UC4"
-              onPress={handlePress}>
-            </List.Accordion>
           </List.Section>
         </View>
 
       </ScrollView>
+
+      <View style={styles.footer} ></View>
     </View>
   )
 };
@@ -192,6 +194,10 @@ const styles = StyleSheet.create({
     height: 18,
     marginLeft: 15
   },
+  footer: {
+    backgroundColor: '#004587',
+    height: 40,
+  }
 })
 
 export default MyComponent;
