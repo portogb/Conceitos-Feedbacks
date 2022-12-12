@@ -1,26 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { Appbar, List, DataTable, Button } from 'react-native-paper';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView, FlatList } from 'react-native';
 
 const MyComponent = () => {
 
-  const [data, setData] = useState([]);
   const [expanded, setExpanded] = React.useState(true);
   const handlePress = () => setExpanded(!expanded);
 
+  const [data, setData] = useState(null);
+  const [titleUc, setTitleUc] = useState("N/A");
+
   const fetchData = async () => {
-    const resp = await fetch("http://academico3.rj.senac.br:8080/api/");
+    const resp = await fetch("http://academico3.rj.senac.br:8080/api/RegistroAvaliacao/TodosRegistrosPeriodoAtualFilterByUsuarioIdByUCId/3b700ecc-cec9-4be4-8c00-48bced543861/1");
     const data = await resp.json();
+
+    setTitleUc(data[0].participante?.grupo?.unidadeCurricular?.nome);
     setData(data);
   };
 
-  
   useEffect(() => {
     fetchData();
   }, []);
 
+  const RenderItem =
+    ({ item }) => {
+      return (
+        <View>
+          <DataTable.Row>
+            <DataTable.Cell style={styles.centerCell}>{item[0].avaliacaoConceito?.descricao}</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>{item[1].avaliacaoConceito?.descricao}</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+            <DataTable.Cell style={styles.centerCell}>N/A</DataTable.Cell>
+          </DataTable.Row>
+        </View>
+      );
+    }
+
   return (
-    <View style={{flex:1}}>
+    <View style={{ flex: 1 }}>
       <ScrollView style={styles.scrollView}>
         <View>
 
@@ -41,7 +60,7 @@ const MyComponent = () => {
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
           </View>
-          <Text style={{ fontSize: 16, marginTop: 25}}>CONCEITOS E FEEDBACKS</Text>
+          <Text style={{ fontSize: 16, marginTop: 25 }}>CONCEITOS E FEEDBACKS</Text>
           <Text style={{ fontSize: 16, marginBottom: 25, color: '#3F51B5' }}>Dashboard / Link 1 / Link 2</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
@@ -60,12 +79,12 @@ const MyComponent = () => {
 
         <View>
           <List.Section>
-            <List.Accordion style={styles.formatAccordion}
-              title="UC1"
-              titleStyle={styles.titleColor}
+            <List.Accordion
+              style={{ backgroundColor: '#004587', borderRadius: 40, margin: 5, height: 50 }}
+              title={titleUc}
               onPress={handlePress}>
 
-              <DataTable style={styles.formatBackground}>
+              <DataTable>
                 <DataTable.Header>
                   <DataTable.Title style={styles.centerCell}>C1</DataTable.Title>
                   <DataTable.Title style={styles.centerCell}>Rec C1</DataTable.Title>
@@ -75,22 +94,24 @@ const MyComponent = () => {
                   <DataTable.Title style={styles.centerCell}>Status</DataTable.Title>
                 </DataTable.Header>
 
-                <DataTable.Row>
+                {/* <DataTable.Row>
                   <DataTable.Cell style={styles.centerCell}>B</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}></DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>S</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}></DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>B</DataTable.Cell>
                   <DataTable.Cell style={styles.centerCell}>Ap</DataTable.Cell>
-                </DataTable.Row>
+                </DataTable.Row> */}
+                <RenderItem item={data} />
+
 
                 {/* TAREFAS */}
 
                 <View style={{ alignItems: "center", marginTop: 10, marginBottom: 10 }}>
                   <Text style={{ fontSize: 16 }}>Tarefas</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "center" }}>
-                  <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
-                  <View style={{ flex: 1, height: 1, backgroundColor: '#B3B3B3' }} />
+                    <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+                    <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
                   </View>
                 </View>
 
@@ -98,10 +119,10 @@ const MyComponent = () => {
                   <Button mode="contained" buttonColor="#020202">
                     Geral
                   </Button>
-                  <Button mode="contained" buttonColor='#004587' textColor="#F5F5F5">
+                  <Button mode="contained" buttonColor="#D9D9D9" textColor="#020202">
                     C1
                   </Button>
-                  <Button mode="contained" buttonColor='#004587' textColor="#F5F5F5">
+                  <Button mode="contained" buttonColor="#D9D9D9" textColor="#020202">
                     C2
                   </Button>
                 </View>
@@ -132,30 +153,12 @@ const MyComponent = () => {
               </DataTable>
 
             </List.Accordion>
-
-            <List.Accordion style={styles.formatAccordion}
-              title="UC2"
-              titleStyle={styles.titleColor}
-              onPress={handlePress}>
-
-            </List.Accordion>
-
-            <List.Accordion style={styles.formatAccordion}
-              title="UC3"
-              titleStyle={styles.titleColor}
-              onPress={handlePress}>
-            </List.Accordion>
-
-            <List.Accordion style={styles.formatAccordion}
-              title="UC4"
-              titleStyle={styles.titleColor}
-              onPress={handlePress}>
-            </List.Accordion>
           </List.Section>
         </View>
 
       </ScrollView>
-      <View style={styles.footer}></View>
+
+      <View style={styles.footer} ></View>
     </View>
   )
 };
@@ -191,23 +194,10 @@ const styles = StyleSheet.create({
     height: 18,
     marginLeft: 15
   },
-  formatAccordion:{
-    backgroundColor: "#004B8D",
-    borderRadius: 30,
-    margin: 5,
-  },
-  formatBackground:{
-    backgroundColor:"#F6F6F6"
-  },
-  footer:{
+  footer: {
     backgroundColor: '#004587',
-    height: 45,
-  },
-  titleColor:{
-    color:"#f5f5f5"
+    height: 40,
   }
 })
 
 export default MyComponent;
-
-//  https://callstack.github.io/react-native-paper/list-accordion.html
